@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build outputs
+/build
+/dist
+/.next
+
+# Runtime data
+.pids
+*.pid
+*.seed
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# dotenv environment variables file
+.env
+.env.local
+.env.*.local
+
+# Mac System files
+.DS_Store
+
+# IDEs and editor files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# React build output
+build/
