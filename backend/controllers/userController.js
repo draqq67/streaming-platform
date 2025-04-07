@@ -1,20 +1,37 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { createUser, findUserByEmail, getUsers } = require("../models/userModel");
+const { createUser, findUserByEmail, getUsers, getUser } = require("../models/userModel");
 const { get } = require("../routes/userRoutes");
+const pool = require("../config/db");
 
 const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
+        // Check if username already exists
+        const existingUser = await findUserByEmail(email);
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({ error: "Email already exists" });
+        }
+
+        const existingUsername = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (existingUsername.rows.length > 0) {
+            return res.status(400).json({ error: "Username already taken" });
+        }
+
+        // Hash password and create user
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await createUser(username, email, hashedPassword);
-        res.status(201).json(newUser.rows[0]);
+
+        // Respond without password
+        const { id, username: userName, email: userEmail, role } = newUser.rows[0];
+        res.status(201).json({ id, username: userName, email: userEmail, role });
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error during registration:", err.message, err.stack);
+        res.status(500).json({ error: "Something went wrong. Please try again." });
     }
 };
-
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
@@ -37,5 +54,19 @@ const listUsers = async(req,res)=>{
         res.status(500).json({error: err.message})
     }
 }
+const getUserById = async (req, res) => {
+    const { userId } = req.params;
 
-module.exports = { registerUser, loginUser, listUsers};
+    try {
+        const user = await getUser(userId);
+        if (user.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.json(user.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch user" });
+    }
+}
+
+module.exports = { registerUser, loginUser, listUsers, getUserById };

@@ -11,4 +11,17 @@ const addMovie = async (title, description, videoUrl, thumbnail) => {
     );
 };
 
-module.exports = { getMovies, addMovie };
+const deleteComment = async (commentId) => {
+    return pool.query("DELETE FROM ratings WHERE movie_id = $1", [commentId]);
+};
+const getMovie = async (movieId) => {
+    return pool.query("SELECT * FROM movies WHERE id = $1", [movieId]);
+};
+
+const getCommentsByMovie = async (movieId) => {
+    return pool.query(
+        "SELECT * FROM ratings WHERE movie_id = $1 ORDER BY created_at DESC",
+        [movieId]
+    );
+};
+module.exports = { getMovies, addMovie,deleteComment, getMovie, getCommentsByMovie};
