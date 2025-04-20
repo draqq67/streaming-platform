@@ -29,10 +29,7 @@ const listCommentsbyUser = async (req, res) => {
 }
 
 const createComment = async (req, res) => {
-    const { movieId } = req.params;
-    const { rating, comment } = req.body;
-    const userId = req.user.userId;
-
+    const { comment, rating, userId, movieId } = req.body;
     try {
         const result = await addComment(userId, movieId, rating, comment);
         res.status(201).json(result.rows[0]);
