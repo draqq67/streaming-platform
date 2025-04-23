@@ -22,33 +22,44 @@ const UserPage = () => {
     const fetchUserData = async () => {
       try {
         const userId = user.userId;
+        const token = localStorage.getItem("token");
+  
+        // Fetch user info
         const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
         setUserData(data);
-
-        // Fetch user comments
-        const commentsResponse = await fetch(
-          `http://localhost:5000/api/users/${userId}/comments`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+  
+        // Fetch comments
+        const commentsResponse = await fetch(`http://localhost:5000/api/users/${userId}/comments`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const commentsData = await commentsResponse.json();
-        setUserComments(commentsData);
+  
+        // Enrich comments with movie titles
+        const enrichedComments = await Promise.all(
+          commentsData.map(async (comment) => {
+            try {
+              const movieRes = await fetch(`http://localhost:5000/api/movies/${comment.movie_id}`);
+              const movieData = await movieRes.json();
+              return { ...comment, movieTitle: movieData.title };
+            } catch (err) {
+              console.error("Error fetching movie title:", err);
+              return { ...comment, movieTitle: "Unknown Movie" };
+            }
+          })
+        );
+  
+        setUserComments(enrichedComments);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
-
+  
     fetchUserData();
   }, [user, navigate]);
-
+  console.log(userComments)
   const handleLogout = () => {
     logout();
   };
@@ -96,7 +107,7 @@ const UserPage = () => {
                   <Grid item xs={12} key={comment.id}>
                     <Paper elevation={1} sx={{ p: 2 }}>
                       <Typography variant="body2" color="textSecondary">
-                        Movie ID: {comment.movie_id}
+                        Movie Title: {comment.movieTitle}
                       </Typography>
                       <Typography>{comment.comment}</Typography>
                       <Typography variant="caption" color="textSecondary">

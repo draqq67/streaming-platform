@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Grid, Typography, TextField, Button, Paper, Box, Alert } from "@mui/material";
+import { Grid, Typography, TextField, Button, Paper, Box, Alert,Chip } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -94,7 +94,13 @@ const MoviePage = () => {
       })
       .catch((err) => console.error("Error posting comment:", err));
   };
-
+  const parsedCast = movie?.movie_cast?.map(actorStr => {
+    const [name, role] = actorStr.split(" as ");
+    return {
+      name: name?.trim() || "",
+      role: role?.trim() || "Unknown",
+    };
+  }) || [];
   if (!movie) return <div>Loading...</div>;
 
   return (
@@ -102,28 +108,80 @@ const MoviePage = () => {
       <Header />
       <Grid container spacing={4}>
         <Grid item xs={10} md={8}>
-          <Paper elevation={7} style={{ width: "100vh", minHeight: "100vh", padding: "20px" }}>
-            <Typography variant="h4" gutterBottom>{movie.title}</Typography>
-            <img src={movie.thumbnail} alt={movie.title} style={{ width: "100%" }} />
-            <Typography variant="body1" style={{ marginTop: "20px" }}>
-              {movie.description}
+        <Paper elevation={7} style={{ padding: "20px", textAlign: "center" }}>
+            <Typography variant="h4" gutterBottom>
+              {movie.title}
             </Typography>
 
+            {/* Poster Image */}
+            <img
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+              style={{ width: "100%", maxWidth: "400px", marginBottom: "20px", margin: "0 auto" }}
+            />
+
+            {/* Movie Overview */}
+            <Typography variant="body1" style={{ marginTop: "20px" }}>
+              {movie.overview}
+            </Typography>
+            {/* Movie Top cast */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" color="textSecondary">
+                <strong>Top Cast:</strong>
+                {parsedCast.length > 0
+              ? parsedCast.map((actor, index) => (
+                  <Chip key={index} label={`${actor.name} (${actor.role})`} style={{ margin: "5px" }} />
+                ))
+              : "N/A"}
+              </Typography>
+            </Box>
+            {/* Movie Director */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" color="textSecondary">
+                <strong>Director:</strong> {movie.director || "N/A"}
+              </Typography>
+            </Box>
+            
+            {/* Movie Release Date and Runtime */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" color="textSecondary">
+                <strong>Release Date:</strong> {new Date(movie.release_date).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                <strong>Runtime:</strong> {movie.runtime} minutes
+              </Typography>
+            </Box>
+
+            {/* Movie Rating */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" color="textSecondary">
+                <strong>Rating:</strong> ⭐ {movie.vote_average}/10
+              </Typography>
+            </Box>
+
+            {/* Movie Genres */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" color="textSecondary">
+                <strong>Genres:</strong>
+                {movie.genres && movie.genres.length > 0
+                  ? movie.genres.map((genre, index) => (
+                      <Chip key={index} label={genre} style={{ margin: "5px" }} />
+                    ))
+                  : " N/A"}
+              </Typography>
+            </Box>
+
+            {/* Movie Backdrop Image */}
+            <img
+              src={`https://image.tmdb.org/t/p/w500${movie.backdrop_path}`}
+              alt={movie.title}
+              style={{ width: "100%", maxWidth: "800px", marginTop: "20px" }}
+            />
+            {/* Video Player */}
             <Box mt={3}>
-              <VideoPlayer 
-                videoUrl={movie.video_url} 
+              <VideoPlayer
+                videoUrl={movie.trailer_url || movie.video_url}
                 title={movie.title}
-                subtitles={[
-                  { src: `/subtitles/${movie.id}/en.vtt`, lang: 'en', label: 'English' },
-                  { src: `/subtitles/${movie.id}/es.vtt`, lang: 'es', label: 'Spanish' },
-                  { src: `/subtitles/${movie.id}/fr.vtt`, lang: 'fr', label: 'French' }
-                ]}
-                qualityOptions={[
-                  { label: "1080p", value: "1080p", url: movie.video_url + "?quality=1080p" },
-                  { label: "720p", value: "720p", url: movie.video_url + "?quality=720p" },
-                  { label: "480p", value: "480p", url: movie.video_url + "?quality=480p" },
-                  { label: "360p", value: "360p", url: movie.video_url + "?quality=360p" }
-                ]}
               />
             </Box>
           </Paper>

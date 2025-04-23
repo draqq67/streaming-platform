@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Chip } from "@mui/material";
 
 const MovieCard = ({ movie }) => {
   return (
@@ -15,19 +15,25 @@ const MovieCard = ({ movie }) => {
           },
         }}
       >
-        <CardMedia
-          component="img"
-          height="140"
-          image={movie.thumbnail || "https://via.placeholder.com/300x200"}
-          alt={movie.title}
-        />
+            <CardMedia
+            component="img"
+            height="140"
+            image={`https://image.tmdb.org/t/p/w500${movie.poster_path}` || "https://via.placeholder.com/300x200"}
+            alt={movie.title}
+          />
+
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {movie.title}
           </Typography>
           <Typography variant="body2" color="text.secondary" noWrap>
-            {movie.description}
+            {movie.overview || "No description available"}
           </Typography>
+          <div style={{ marginTop: 8 }}>
+            {Array.isArray(movie.genres) && movie.genres.map((genre, index) => (
+              <Chip key={index} label={genre} sx={{ marginRight: 0.5 }} />
+            ))}
+          </div>
         </CardContent>
       </Card>
     </Link>

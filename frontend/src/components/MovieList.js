@@ -21,7 +21,7 @@ function MovieList() {
   useEffect(() => {
     fetchMovies();
   }, []);
-
+  console.log(movies)
   return (
     <div>
       <h2>Movies</h2>
