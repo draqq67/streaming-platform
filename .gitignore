@@ -36,3 +36,5 @@ npm-debug.log*
 build/
 movies/
 playgroung.js
+TMDB_movie_dataset_v11.csv
+movie-project-455117-4b2b4bc46bba.json

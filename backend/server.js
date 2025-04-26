@@ -13,6 +13,13 @@ app.use("/api/movies", movieRoutes);
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api", require("./routes/ratingsRoutes"));
 
+// router.get("/recommend/:userId", async (req, res) => {
+//   const userId = parseInt(req.params.userId);
+//   // Run Python script here or call a recommender module that uses SVD
+//   const recommendations = await getRecommendations(userId); // returns list of movie_ids
+//   const movies = await pool.query("SELECT * FROM movies WHERE tmdb_id = ANY($1)", [recommendations]);
+//   res.json(movies.rows);
+// });
 
 app.get("/", (req, res) => {
   res.send("API is running...");
