@@ -36,3 +36,5 @@ npm-debug.log*
 build/
 movies/
 playgroung.js
+config/
+backend/recommender/TMDB_movie_dataset_v11.csv
