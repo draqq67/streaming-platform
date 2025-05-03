@@ -25,7 +25,7 @@ function MovieList() {
   return (
     <div>
       <h2>Movies</h2>
-      {movies.map((movie) => (
+      {movies.slice(0, 50).map((movie) => (
         <div key={movie.id} style={{ borderBottom: "1px solid #ccc", marginBottom: "10px" }}>
           <h3>{movie.title}</h3>
           <p>{movie.description}</p>

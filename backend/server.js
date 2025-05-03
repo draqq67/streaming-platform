@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movieRoutes");
+const userRatingsUpload = require("./routes/userRatingsUpload");
+
 
 const app = express();
 app.use(express.json());
@@ -21,6 +23,7 @@ app.use("/api", require("./routes/ratingsRoutes"));
 //   res.json(movies.rows);
 // });
 
+app.use("/api/users", userRatingsUpload);
 app.get("/", (req, res) => {
   res.send("API is running...");
 });

@@ -3,6 +3,7 @@ const {
     addComment,
     deleteComment,
     getCommentsByUser,
+    getRatings
 } = require("../models/ratingsModel");
 
 const listCommentsbyMovie = async (req, res) => {
@@ -47,10 +48,21 @@ const removeComment = (req, res) => {
       return res.status(403).json({ error: "Access denied. Admins only." });
     }
   };
-  
+  const listRatingsByUser = async (req, res) => {
+    const { userId } = req.params;
+    console.log(userId)
+    try {
+        const result = await getRatings(userId);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch comments" });
+    }
+}
 module.exports = {
     listCommentsbyMovie,
     listCommentsbyUser,
     createComment,
     removeComment,
+    listRatingsByUser
 };

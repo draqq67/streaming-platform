@@ -24,4 +24,7 @@ const getCommentsByMovie = async (movieId) => {
         [movieId]
     );
 };
-module.exports = { getMovies, addMovie,deleteComment, getMovie, getCommentsByMovie};
+const getMoviesbyTMDB = async (tmdbId) => {
+    return pool.query("SELECT * FROM movies WHERE tmdb_id = $1", [tmdbId]);
+};
+module.exports = { getMovies, addMovie,deleteComment, getMovie, getCommentsByMovie,getMoviesbyTMDB};

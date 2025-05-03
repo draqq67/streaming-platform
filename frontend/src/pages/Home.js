@@ -143,8 +143,8 @@ const HomePage = () => {
 
       <h2>Featured Movies</h2>
       <Grid container spacing={4}>
-        {liveFiltered.length > 0 ? (
-          liveFiltered.map((movie) => (
+        {liveFiltered.slice(0, 50).length > 0 ? (
+          liveFiltered.slice(0, 50).map((movie) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
               <MovieCard movie={movie} />
             </Grid>

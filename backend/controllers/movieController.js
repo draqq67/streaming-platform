@@ -1,4 +1,4 @@
-const { getMovies, addMovie,getMovie } = require("../models/movieModel");
+const { getMovies, addMovie,getMovie,getMoviesbyTMDB} = require("../models/movieModel");
 const { uploadToGCS } = require("../config/gcloud");
 
 const listMovies = async (req, res) => {
@@ -67,6 +67,19 @@ const getMovieById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+const getMoviebyTMDBId = async (req, res) => {
+    const { tmdbId } = req.params;
+
+    try {
+        const movie = await getMoviesbyTMDB(tmdbId);
+        if (movie.rows.length === 0) {
+            return res.status(404).json({ error: "Movie not found" });
+        }
+        res.json(movie.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
 const getCommentsByMovie = async (req, res) => {
     const { movieId } = req.params;
 
@@ -79,4 +92,4 @@ const getCommentsByMovie = async (req, res) => {
 }
 
 
-module.exports = { listMovies, uploadMovie, addRating,deleteCommentById, getMovieById, getCommentsByMovie };
+module.exports = { listMovies, uploadMovie, addRating,deleteCommentById, getMovieById, getCommentsByMovie,getMoviebyTMDBId };

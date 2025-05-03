@@ -50,7 +50,11 @@ const Header = () => {
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
-          
+          {user && (
+            <Button color="inherit" component={Link} to="/watchlist">
+              Watchlist
+            </Button>
+          )}
           {user ? (
             // Logged in navigation
             <>
@@ -66,6 +70,7 @@ const Header = () => {
                 Logout
               </Button>
             </>
+
           ) : (
             // Guest navigation
             <>
@@ -77,6 +82,7 @@ const Header = () => {
               </Button>
             </>
           )}
+          
         </Box>
       </Toolbar>
     </AppBar>
