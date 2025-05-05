@@ -90,7 +90,7 @@ const HomePage = () => {
   
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", color: "white" }}>
       <Header />
       <div>
         {user ? (
@@ -105,12 +105,15 @@ const HomePage = () => {
       </div>
 
       {/* Search & Filter Controls */}
-      <Box display="flex" gap={2} mb={4} flexWrap="wrap" alignItems="center" >
+      <Box display="flex" gap={2} mb={4} flexWrap="wrap" alignItems="center">
         <TextField
           label="Search by Title or Director"
           variant="outlined"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          InputLabelProps={{ style: { color: "white" } }}
+          InputProps={{ style: { color: "white" } }}
+          style={{ color: "white" }}
         />
         <TextField
           label="Genre"
@@ -118,7 +121,9 @@ const HomePage = () => {
           select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          style={{ minWidth: 150 }}
+          InputLabelProps={{ style: { color: "white" } }}
+          InputProps={{ style: { color: "white" } }}
+          style={{ minWidth: 150, color: "white" }}
         >
           <MenuItem value="">All</MenuItem>
           {allGenres.map((g, i) => (
@@ -132,11 +137,17 @@ const HomePage = () => {
             <Checkbox
               checked={onlyAvailable}
               onChange={(e) => setOnlyAvailable(e.target.checked)}
+              style={{ color: "white" }}
             />
           }
           label="Has Video"
+          style={{ color: "white" }}
         />
-        <Button variant="contained" onClick={handleSearch}>
+        <Button
+          variant="contained"
+          onClick={handleSearch}
+          style={{ backgroundColor: "white", color: "black" }}
+        >
           Filter
         </Button>
       </Box>

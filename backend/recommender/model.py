@@ -84,17 +84,23 @@ def get_recommendations(user_id):
         cursor.execute("SELECT tmdb_id FROM movies")
         movies_data = cursor.fetchall()
         
-        cursor.close()
-        conn.close()
-
+     
         # Get predictions for the user
+        # Fetch movies already rated by the user
+        cursor.execute("SELECT movie_id FROM ratings WHERE user_id = %s", (user_id,))
+        rated_movies = {row[0] for row in cursor.fetchall()}
+
         predictions = []
         for movie in movies_data:
-            pred = model.predict(user_id, movie[0])
-            predictions.append((movie[0], pred.est))
+            if movie[0] not in rated_movies:  # Exclude already rated movies
+                pred = model.predict(user_id, movie[0])
+                predictions.append((movie[0], pred.est))
 
         predictions.sort(key=lambda x: x[1], reverse=True)
         top_movies = [{"movie_id": movie[0], "rating": movie[1]} for movie in predictions[:5]]
+        
+        cursor.close()
+        conn.close()
 
         return top_movies
     except Exception as e:

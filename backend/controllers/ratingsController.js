@@ -3,8 +3,9 @@ const {
     addComment,
     deleteComment,
     getCommentsByUser,
-    getRatings
+    getRatings,
 } = require("../models/ratingsModel");
+const  pool =  require("../config/db");
 
 const listCommentsbyMovie = async (req, res) => {
     const { movieId } = req.params;
@@ -59,10 +60,35 @@ const removeComment = (req, res) => {
         res.status(500).json({ error: "Failed to fetch comments" });
     }
 }
+const changeRating = async (req, res) => {
+    const { userId, movieId } = req.params;
+    const { rating } = req.body;
+    console.log("Received rating:", rating);
+    console.log("Received userId:", userId);
+    console.log("Received movieId:", movieId);
+  
+    try {
+      const result = await pool.query(
+        'UPDATE ratings SET rating = $1 WHERE user_id = $2 AND movie_id = ( Select tmdb_id from movies where id=$3 ) RETURNING *',
+        [rating, userId, movieId]
+      );
+
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Rating not found' });
+      }
+  
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error('Error updating rating:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+};
 module.exports = {
     listCommentsbyMovie,
     listCommentsbyUser,
     createComment,
     removeComment,
-    listRatingsByUser
+    listRatingsByUser,
+    changeRating
 };

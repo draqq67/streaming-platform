@@ -20,10 +20,11 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 const backgroundStyle = {
-  backgroundImage: `url('/background.jpg')`,
+  background: 'linear-gradient(90deg, rgba(154, 176, 184, 0.9) 0%, rgba(161, 161, 77, 0.59) 54%, rgba(72, 194, 98, 0.55) 100%)',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  margin: 0
+  margin: 0,
+ display: "flex", flexDirection: "column", minHeight: "100vh"
 };
 
 function App() {

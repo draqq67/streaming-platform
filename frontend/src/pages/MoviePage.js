@@ -5,7 +5,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/authContext";
 import VideoPlayer from "../components/VideoPlayer";
-import WatchList from "./Watchlist";
 
 const MoviePage = () => {
   const [movie, setMovie] = useState(null);
@@ -13,10 +12,16 @@ const MoviePage = () => {
   const [newComment, setNewComment] = useState("");
   const [userRating, setUserRating] = useState(null);
   const [ratingInput, setRatingInput] = useState("");
-  const [watchlistAdded, setWatchlistAdded] = useState(false); // State to track watchlist status
+  const [watchlistAdded, setWatchlistAdded] = useState(false);
   const { movieId } = useParams();
   const { user } = useAuth();
 
+  useEffect(() => {
+    if (userRating !== null) {
+      setRatingInput(userRating.toString());
+    }
+  }, [userRating]);
+  
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -47,9 +52,8 @@ const MoviePage = () => {
           const ratingRes = await fetch(`http://localhost:5000/api/users/${user.userId}/ratings`);
           const ratingData = await ratingRes.json();
           const ratingForMovie = ratingData.find(r => r.movie_id === movieData.tmdb_id);
-          if (ratingForMovie) setUserRating(ratingForMovie.rating);
+          if (ratingForMovie) setUserRating(ratingForMovie);
 
-          // Check if movie is in watchlist
           const watchlistRes = await fetch(`http://localhost:5000/api/users/${user.userId}/watchlist`);
           const watchlistData = await watchlistRes.json();
           const isMovieInWatchlist = watchlistData.some((item) => item.movie_id === movieData.id);
@@ -91,40 +95,54 @@ const MoviePage = () => {
   const handleRatingSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
+  
+    const payload = {
+      userId: user?.userId,
+      movieId: movieId,
+      ratingValue: parseFloat(ratingInput),
+    };
+    console.log(movieId)
+    const ratingValue = parseFloat(ratingInput);  // Ensure ratingValue is defined correctl
     if (userRating !== null) {
-      fetch(`http://localhost:5000/api/ratings/${userRating.id}`, {
+      fetch(`http://localhost:5000/api/users/${user.userId}/ratings/${movieId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          rating: parseFloat(ratingInput),
+          rating: ratingValue, // ratingValue is the value we want to send
         }),
       })
-        .then((res) => res.json())
-        .then((data) => {
-          setUserRating(data.rating);
-          setRatingInput("");
-        })
-        .catch((err) => console.error("Error updating rating:", err));
+      .then((res) => {
+        console.log("Response Status:", res.status); // Log status for debugging
+        if (!res.ok) {
+          // If the response status is not OK, throw an error with the status
+          throw new Error(`Failed to update rating, status: ${res.status}`);
+        }
+        return res.json();  // Attempt to parse response as JSON
+      })
+      .then((data) => {
+        console.log("Updated Rating Data:", data);  // Log data for debugging
+        setUserRating({ ...userRating, rating: data.rating });
+        setRatingInput("");
+      })
+      .catch((err) => {
+        console.error("Error updating rating:", err);
+      });
     } else {
+      // Create new
       fetch(`http://localhost:5000/api/ratings`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: user?.userId,
-          movieId: movieId,
-          rating: parseFloat(ratingInput),
-        }),
+        body: JSON.stringify(payload),
       })
         .then((res) => res.json())
         .then((data) => {
-          setUserRating(data.rating);
+          setUserRating(data); // store full new object
           setRatingInput("");
         })
         .catch((err) => console.error("Error submitting rating:", err));
@@ -140,7 +158,7 @@ const MoviePage = () => {
     const token = localStorage.getItem("token");
 
     fetch(`http://localhost:5000/api/users/${user.userId}/watchlist`, {
-      method: watchlistAdded ? "DELETE" : "POST", // If movie is in watchlist, remove it
+      method: watchlistAdded ? "DELETE" : "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -150,7 +168,7 @@ const MoviePage = () => {
       }),
     })
       .then(() => {
-        setWatchlistAdded(!watchlistAdded); // Toggle watchlist status
+        setWatchlistAdded(!watchlistAdded);
       })
       .catch((err) => console.error("Error adding/removing movie from watchlist:", err));
   };
@@ -162,82 +180,82 @@ const MoviePage = () => {
 
   if (!movie) return <div>Loading...</div>;
 
+  const BoxStyle = {
+    background: "linear-gradient(90deg, rgba(154, 176, 184, 0.86) 49%, rgba(72, 194, 98, 0) 100%)",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    padding: "30px",
+    borderRadius: "16px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+  };
+
   return (
-    <div style={{ padding: "30px", backgroundColor: "#f4f4f4" }}>
+    <div style={{ padding: "30px" }}>
       <Header />
       <Grid container spacing={6}>
-        <Grid item xs={12} md={6} style={{width: "50%", textAlign: "center", justifyContent: "center", marginLeft: "20px"}}>
-          <Paper elevation={5} style={{ padding: "25px", backgroundColor: "#ffffff", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)" }}>
+        <Grid item xs={12} md={6} style={{ width: "50%", textAlign: "center", marginLeft: "20px" }}>
+          <Paper elevation={5} style={{ ...BoxStyle }}>
             <Typography variant="h3" gutterBottom style={{ fontWeight: "700", color: "#2c3e50" }}>{movie.title}</Typography>
             <img
               src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
               alt={movie.title}
               style={{ width: "100%", maxWidth: "400px", marginBottom: "20px", borderRadius: "10px", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)" }}
             />
-            <Typography variant="body1" style={{ marginTop: "20px", color: "#7f8c8d" }}>
+            <Typography variant="body1" style={{ marginTop: "20px", color: "black" }}>
               {movie.overview}
             </Typography>
-            <Box mt={2} textAlign="center">
+            <Box mt={2}>
               <Typography variant="h6" color="textSecondary" style={{ fontWeight: "500" }}>
                 <strong>Top Cast:</strong>
                 {parsedCast.length > 0
                   ? parsedCast.map((actor, index) => (
-                      <Chip key={index} label={`${actor.name} (${actor.role})`} style={{ margin: "5px", backgroundColor: "#2980b9", color: "#fff", fontWeight: "500" }} />
-                    ))
+                    <Chip key={index} label={`${actor.name} (${actor.role})`} style={{ margin: "5px", backgroundColor: "#2980b9", color: "#fff", fontWeight: "500" }} />
+                  ))
                   : "N/A"}
               </Typography>
             </Box>
-            <Box mt={2} textAlign="center">
+            <Box mt={2}>
               <Typography variant="h5" color="primary" style={{ fontWeight: "600" }}>
-                ⭐ {movie.vote_average/2}/5
+                ⭐ {movie.vote_average / 2}/5
               </Typography>
             </Box>
+
             <Box mt={3} display="flex" flexDirection="column" gap={3}>
-      {/* Box for YouTube Trailer */}
-      {movie.trailer_url && movie.trailer_url.includes("youtube.com") && (
-        <Box>
-          <Typography variant="h6" gutterBottom>Watch the Trailer:</Typography>
-          <iframe
-            width="100%"
-            height="315"
-            src={movie.trailer_url.replace("watch?v=", "embed/")}
-            title={`${movie.title} Trailer`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            style={{
-              borderRadius: "10px",
-              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-            }}
-          />
-        </Box>
-      )}
+              {movie.trailer_url?.includes("youtube.com") && (
+                <Box>
+                  <Typography variant="h6" gutterBottom>Watch the Trailer:</Typography>
+                  <iframe
+                    width="100%"
+                    height="315"
+                    src={movie.trailer_url.replace("watch?v=", "embed/")}
+                    title={`${movie.title} Trailer`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: "10px", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)" }}
+                  />
+                </Box>
+              )}
 
-      {/* Box for Fallback Video Player */}
-        <Box>
-          <Typography variant="h6" gutterBottom>Watch the Movie:</Typography>
-          <VideoPlayer
-            videoUrl={movie.video_url}
-            title={movie.title}
-          />
-        </Box>
-    </Box>
+              <Box>
+                <Typography variant="h6" gutterBottom>Watch the Movie:</Typography>
+                <VideoPlayer videoUrl={movie.video_url} posterUrl ={movie.backdrop_path} />
+              </Box>
+            </Box>
 
-                  <Button
+            <Button
               variant="contained"
-              color={watchlistAdded ? "secondary" : "primary"}
+              color={watchlistAdded ? "secondary" : ""}
               onClick={handleAddToWatchlist}
-              style={{ marginTop: "20px", fontWeight: "600", padding: "10px 20px" }}
+              style={{ marginTop: "20px", fontWeight: "600", padding: "10px 20px", color : ""}}
             >
               {watchlistAdded ? "Remove from Watchlist" : "Add to Watchlist"}
             </Button>
           </Paper>
         </Grid>
 
-        {/* Comments, Rating, and Leave a Comment Section */}
-        <Grid item xs={12} md={6} style={{width: "45%", marginLeft: "20px"}}>
-          {/* Comments Section */}
-          <Paper elevation={3} style={{ padding: "20px", backgroundColor: "#ffffff", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)", textAlign: "center" }}>
+        <Grid item xs={12} md={6} style={{ width: "45%", marginLeft: "20px" }}>
+          <Paper elevation={3} style={{ ...BoxStyle }}>
             <Typography variant="h6" gutterBottom style={{ fontWeight: "600", color: "#2c3e50" }}>Comments</Typography>
             {comments.length === 0 ? (
               <Typography>No comments yet. Be the first to comment!</Typography>
@@ -247,41 +265,47 @@ const MoviePage = () => {
                   <Typography variant="body2" color="textSecondary" style={{ fontWeight: "500" }}>
                     {comment.username}
                   </Typography>
-                  <Typography style={{ fontStyle: "italic", color: "#7f8c8d" }}>{comment.comment}</Typography>
+                  <Typography style={{ fontStyle: "italic", color: "black" }}>{comment.comment}</Typography>
                 </Box>
               ))
             )}
           </Paper>
 
-          {/* Rating Section */}
-          <Paper elevation={3} style={{ padding: "20px", marginTop: "20px", backgroundColor: "#ffffff", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",textAlign: "center"  }}>
+          <Paper elevation={3} style={{ ...BoxStyle, marginTop: "20px" }}>
             <Typography variant="h6" gutterBottom style={{ fontWeight: "600", color: "#2c3e50" }}>Rate This Movie</Typography>
-            {userRating !== null ? (
-              <Typography>Your rating: {userRating}/5 ⭐</Typography>
-            ) : (
-              <form onSubmit={handleRatingSubmit}>
+                  <form onSubmit={handleRatingSubmit}>
                 <TextField
                   fullWidth
-                  label="Your Rating (1-10)"
+                  label="Your Rating (0.5-5)"
                   type="number"
-                  inputProps={{ min: 1, max: 10 }}
+                  inputProps={{ min: 0.5, max: 5, step: 0.5 }}
                   variant="outlined"
                   value={ratingInput}
                   onChange={(e) => setRatingInput(e.target.value)}
                   required
                   style={{ marginBottom: "15px" }}
+                  placeholder="Enter a rating"
                 />
+                {userRating !== null && (
+                  <Typography variant="body2" style={{ marginBottom: "10px", color: "#555" }}>
+                    You rated this movie: {userRating.rating}/5 ⭐ — you can update it below
+                  </Typography>
+                )}
                 <Box mt={2}>
-                  <Button type="submit" variant="contained" color="primary" style={{ padding: "10px 20px", fontWeight: "600" }}>
-                    Submit Rating
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color=""
+                    style={{ padding: "10px 20px", fontWeight: "600" }}
+                  >
+                    {userRating !== null ? "Update Rating" : "Submit Rating"}
                   </Button>
                 </Box>
-              </form>
-            )}
+            </form>
+
           </Paper>
 
-          {/* Leave a Comment Section */}
-          <Paper elevation={3} style={{ padding: "20px", marginTop: "20px", backgroundColor: "#ffffff", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" , textAlign: "center" }}>
+          <Paper elevation={3} style={{ ...BoxStyle, marginTop: "20px" }}>
             <Typography variant="h6" gutterBottom style={{ fontWeight: "600", color: "#2c3e50" }}>Leave a Comment</Typography>
             {user ? (
               <form onSubmit={handleCommentSubmit}>
@@ -293,11 +317,13 @@ const MoviePage = () => {
                   rows={4}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => e.stopPropagation()} // <- this stops parent listeners
+                  placeholder="Write your comment here..."
                   required
                   style={{ marginBottom: "15px" }}
                 />
                 <Box mt={2}>
-                  <Button type="submit" variant="contained" color="primary" style={{ padding: "10px 20px", fontWeight: "600" }}>
+                  <Button type="submit" variant="contained" color="" style={{ padding: "10px 20px", fontWeight: "600" }}>
                     Submit Comment
                   </Button>
                 </Box>
@@ -307,10 +333,10 @@ const MoviePage = () => {
                 <Alert severity="info" style={{ marginBottom: "10px" }}>
                   You need to be logged in to add comments and ratings.
                 </Alert>
-                <Button 
-                  component={Link} 
-                  to="/login" 
-                  variant="contained" 
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="contained"
                   color="primary"
                   style={{ fontWeight: "600", padding: "10px 20px" }}
                 >
@@ -321,7 +347,6 @@ const MoviePage = () => {
           </Paper>
         </Grid>
       </Grid>
-
       <Footer />
     </div>
   );

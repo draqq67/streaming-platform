@@ -57,9 +57,9 @@ const UserPage = () => {
   }
 
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
-      <Grid container spacing={3} style={{ padding: "30px" }}>
+      <Grid container spacing={3} style={{ padding: "30px", flex: 1 }}>
         <Grid item xs={12}>
           <Paper elevation={3} style={{ padding: "20px", textAlign: "center" }}>
             <Typography variant="h4" gutterBottom>My Watchlist</Typography>

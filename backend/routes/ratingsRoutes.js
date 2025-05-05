@@ -4,7 +4,8 @@ const {
     createComment,
     listCommentsbyMovie,
     listCommentsbyUser,
-    listRatingsByUser
+    listRatingsByUser,
+    changeRating
   } = require("../controllers/ratingsController");
 
 const {
@@ -18,5 +19,6 @@ router.get("/users/:userId/comments", listCommentsbyUser);
 router.get("/users/:userId/ratings", listRatingsByUser);
 // Authenticated user: post comment
 router.post("/movies/:movieId/comments", authenticateToken, createComment);
+router.put('/users/:userId/ratings/:movieId',changeRating);
 
 module.exports = router;
