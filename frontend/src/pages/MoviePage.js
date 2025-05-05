@@ -52,7 +52,7 @@ const MoviePage = () => {
           // Check if movie is in watchlist
           const watchlistRes = await fetch(`http://localhost:5000/api/users/${user.userId}/watchlist`);
           const watchlistData = await watchlistRes.json();
-          const isMovieInWatchlist = watchlistData.some((item) => item.movie_id === movieData.tmdb_id);
+          const isMovieInWatchlist = watchlistData.some((item) => item.movie_id === movieData.id);
           setWatchlistAdded(isMovieInWatchlist);
         }
       } catch (err) {
@@ -192,13 +192,38 @@ const MoviePage = () => {
                 ⭐ {movie.vote_average/2}/5
               </Typography>
             </Box>
-            <Box mt={3}>
-              <VideoPlayer
-                videoUrl={movie.trailer_url || movie.video_url}
-                title={movie.title}
-              />
-            </Box>
-            <Button
+            <Box mt={3} display="flex" flexDirection="column" gap={3}>
+      {/* Box for YouTube Trailer */}
+      {movie.trailer_url && movie.trailer_url.includes("youtube.com") && (
+        <Box>
+          <Typography variant="h6" gutterBottom>Watch the Trailer:</Typography>
+          <iframe
+            width="100%"
+            height="315"
+            src={movie.trailer_url.replace("watch?v=", "embed/")}
+            title={`${movie.title} Trailer`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{
+              borderRadius: "10px",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+            }}
+          />
+        </Box>
+      )}
+
+      {/* Box for Fallback Video Player */}
+        <Box>
+          <Typography variant="h6" gutterBottom>Watch the Movie:</Typography>
+          <VideoPlayer
+            videoUrl={movie.video_url}
+            title={movie.title}
+          />
+        </Box>
+    </Box>
+
+                  <Button
               variant="contained"
               color={watchlistAdded ? "secondary" : "primary"}
               onClick={handleAddToWatchlist}

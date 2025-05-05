@@ -4,6 +4,8 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movieRoutes");
 const userRatingsUpload = require("./routes/userRatingsUpload");
+const watchlistRoutes = require('./routes/watchlistRoutes');
+
 
 
 const app = express();
@@ -14,6 +16,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/movies", movieRoutes);
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api", require("./routes/ratingsRoutes"));
+
+app.use('/api/users', watchlistRoutes);
 
 // router.get("/recommend/:userId", async (req, res) => {
 //   const userId = parseInt(req.params.userId);

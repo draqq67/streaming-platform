@@ -105,7 +105,7 @@ const HomePage = () => {
       </div>
 
       {/* Search & Filter Controls */}
-      <Box display="flex" gap={2} mb={4} flexWrap="wrap" alignItems="center">
+      <Box display="flex" gap={2} mb={4} flexWrap="wrap" alignItems="center" >
         <TextField
           label="Search by Title or Director"
           variant="outlined"

@@ -40,3 +40,7 @@ config/
 backend/recommender/TMDB_movie_dataset_v11.csv
 backend/recommender/ratings.csv
 backend/recommender/__pycache__/
+backend/scripts/*.log
+backend/scripts/*.mbtree
+outputs/
+videos/
