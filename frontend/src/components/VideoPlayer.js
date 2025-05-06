@@ -102,7 +102,6 @@ const VideoPlayer = ({ videoUrl, posterUrl }) => {
         break;
     }
   };
-
   useEffect(() => {
     const video = videoRef.current;
 

@@ -225,33 +225,7 @@ const UserPage = () => {
 
         <Grid container spacing={6} sx={{ display: "flex", justifyContent: "space-between" }}>
   {/* Top Rated Movies Section */}
-  <Grid item xs={12} sm={5}>
-    <Typography variant="h6" gutterBottom>
-      Your Top Rated Movies
-    </Typography>
-    {topRatedMovies.length === 0 ? (
-      <Typography>No top-rated movies yet.</Typography>
-    ) : (
-      <Grid container spacing={2}>
-        {topRatedMovies.map((movie) => (
-          <Grid item xs={12} sm={6} md={4} key={movie.tmdb_id}>
-            <Paper elevation={2} sx={{ p: 2 }}>
-              <Typography variant="subtitle1">{movie.title}</Typography>
-              <Typography variant="body2">Rating: {movie.overview?.substring(0, 100)}</Typography>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => navigate(`/movies/${movie.id}`)}
-                sx={{ mt: 1 }}
-              >
-                See Details
-              </Button>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    )}
-  </Grid>
+ 
 
   {/* Recommended Movies Section */}
   <Grid item xs={12} sm={5}>
