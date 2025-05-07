@@ -59,6 +59,11 @@ const Header = () => {
                 Watchlist
               </Button>
             )}
+            {user && (
+              <Button color="inherit" component={Link} to="/rated">
+                Rated Movies
+              </Button>
+            )}
             {user ? (
               <>
                 <Button color="inherit" component={Link} to="/user">

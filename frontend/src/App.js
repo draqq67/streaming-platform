@@ -9,6 +9,7 @@ import Admin from "./pages/Admin.js"
 import MoviePage from "./pages/MoviePage";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import Watchlist from "./pages/Watchlist";
+import RatingList from "./pages/RatedList";
 import { useAuth } from "./context/authContext";
 
 // Protected route component for authenticated users
@@ -37,6 +38,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/rated" element={<RatingList />} />
             <Route 
               path="/user" 
               element={
